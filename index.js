@@ -32,6 +32,8 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
 
+    const hotelsDB = client.db("hotels");
+    const demoColl = hotelsDB.collection("demoColl");
 
     app.get('/',(req, res)=>{
         res.send("Simple api Backend is running!!");
@@ -41,6 +43,13 @@ async function run() {
         res.send("Hotel info is preparing!!");
     });
 
+    app.get('/demo', async(req, res)=>{
+        const cursor = demoColl.find();
+        // console.log(cursor);
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
     app.listen(port,()=>{
         console.log(`Simple backend is running on the port : ${port}`);
         // console.log(`now uri is : ${uri}`);
@@ -49,7 +58,7 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
