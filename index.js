@@ -34,6 +34,7 @@ async function run() {
 
     const hotelsDB = client.db("hotels");
     const demoColl = hotelsDB.collection("demoColl");
+    const roomsColl = hotelsDB.collection("roomsColl");
 
     app.get('/',(req, res)=>{
         res.send("Simple api Backend is running!!");
@@ -49,6 +50,15 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result);
     })
+
+    app.get('/rooms', async(req, res)=>{
+      const result = await roomsColl.find().toArray();
+      res.send(result);
+    });
+
+    app.get('/rooms/:id', async(req, res)=>{
+
+    });
 
     app.listen(port,()=>{
         console.log(`Simple backend is running on the port : ${port}`);
