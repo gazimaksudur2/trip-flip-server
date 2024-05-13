@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const express = require('express');
@@ -132,6 +132,21 @@ async function run() {
       const result = await roomsColl.find().toArray();
       // const cursor = roomsColl.find();
       // const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get('/rooms/:id', async(req, res)=>{
+      // const user = req.user;
+      // const queryUser = req.query;
+      // console.log('user :',user, " and query user: ", queryUser);
+      // if(user.email !== queryUser.email){
+      //   return res.status(403).send({message: "forbidden access!!"});
+      // }
+      const room_id = req.params.id;
+      const query = { _id : new ObjectId(room_id) }
+      console.log(query);
+
+      const result = await roomsColl.findOne(query);
       res.send(result);
     });
 
