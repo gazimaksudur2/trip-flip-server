@@ -25,10 +25,10 @@ const cookieOptions = {
   sameSite: process.env.NODE_ENV === "production" ? 'none' : 'strict',
 };
 
-const uri = `mongodb+srv://${process.env.DB_user}:${process.env.DB_pass}@cluster0.oknyghy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+// const uri = `mongodb+srv://${process.env.DB_user}:${process.env.DB_pass}@cluster0.oknyghy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // local mongoDB
-// const uri = 'mongodb://localhost:27017';
+const uri = 'mongodb://localhost:27017';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 
@@ -67,6 +67,9 @@ async function run() {
     const hotelsDB = client.db("hotels");
     const demoColl = hotelsDB.collection("demoColl");
     const roomsColl = hotelsDB.collection("roomsColl");
+    const bookingColl = hotelsDB.collection("bookingColl");
+    const carouselInfo = hotelsDB.collection("carouselInfo");
+    const reviewsColl = hotelsDB.collection("reviewsColl");
 
     app.post('/jwt', async(req, res)=>{
         const user = req.body;
@@ -97,14 +100,38 @@ async function run() {
         res.send(result);
     })
 
-    app.get('/rooms', verifyToken, async(req, res)=>{
-      const user = req.user;
-      const queryUser = req.query;
-      console.log('user :',user, " and query user: ", queryUser);
-      if(user.email !== queryUser.email){
-        return res.status(403).send({message: "forbidden access!!"});
-      }
+
+    app.get('/bookings', async(req, res)=>{
+        const cursor = bookingColl.find();
+        // console.log(cursor);
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.get('/reviews', async(req, res)=>{
+        const cursor = reviewsColl.find();
+        // console.log(cursor);
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.get('/carousel', async(req, res)=>{
+        const cursor = carouselInfo.find();
+        // console.log(cursor);
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.get('/rooms', async(req, res)=>{
+      // const user = req.user;
+      // const queryUser = req.query;
+      // console.log('user :',user, " and query user: ", queryUser);
+      // if(user.email !== queryUser.email){
+      //   return res.status(403).send({message: "forbidden access!!"});
+      // }
       const result = await roomsColl.find().toArray();
+      // const cursor = roomsColl.find();
+      // const result = await cursor.toArray();
       res.send(result);
     });
 
