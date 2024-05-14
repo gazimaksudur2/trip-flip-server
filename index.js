@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
+  secure: process.env.NODE_ENV === "production" ? false : true,
   sameSite: process.env.NODE_ENV === "production" ? 'none' : 'strict',
 };
 
@@ -73,14 +73,14 @@ async function run() {
 
     app.post('/jwt', async(req, res)=>{
         const user = req.body;
-        console.log('user for token :',user);
+        // console.log('user for token :',user);
         const token = jwt.sign(user, process.env.SECRET_ACCESS_TOKEN, { expiresIn: '1h' })
         res.cookie('token', token, cookieOptions).send({token});
     });
 
     app.post('/logout', async(req, res)=>{
-      const user = req.body;
-      console.log("logged out user: ",user);
+      // const user = req.body;
+      // console.log("logged out user: ",user);
       res.clearCookie('token',{ maxAge: 0}).send({success: true});
     });
 
@@ -124,14 +124,36 @@ async function run() {
 
     app.get('/rooms', async(req, res)=>{
       // const user = req.user;
-      // const queryUser = req.query;
-      // console.log('user :',user, " and query user: ", queryUser);
+      const queryUser = req.query;
+      let result;
+      const options = {
+        sort: {
+          id: -1
+        },
+        projection: {
+          room_title: 1, room_description: 1, reviews: 1, customer_ratings: 1 , homeImg: 1 
+        }
+      }
+      if(queryUser?.start === undefined){
+        console.log("query user: ", queryUser);
+        result = await roomsColl.find({},options).toArray();
+      }else{
+        const start = queryUser.start;
+        const end = queryUser.end;
+        console.log(start, end);
+        if(end === 'all'){
+          const filter = {price_per_night:{$gt: parseInt(start)}};
+          result = await roomsColl.find(filter,options).toArray();
+        }else{
+          console.log('in range');
+          const filter = { price_per_night:{$gt: parseInt(start), $lt: parseInt(end)} };
+          result = await roomsColl.find(filter, options).toArray();
+        }
+      }
+      // console.log(cursor)
       // if(user.email !== queryUser.email){
       //   return res.status(403).send({message: "forbidden access!!"});
       // }
-      const result = await roomsColl.find().toArray();
-      // const cursor = roomsColl.find();
-      // const result = await cursor.toArray();
       res.send(result);
     });
 
@@ -144,8 +166,6 @@ async function run() {
       // }
       const room_id = req.params.id;
       const query = { _id : new ObjectId(room_id) }
-      console.log(query);
-
       const result = await roomsColl.findOne(query);
       res.send(result);
     });
