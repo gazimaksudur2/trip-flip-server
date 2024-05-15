@@ -4,7 +4,7 @@ Client side git Private repo: https://github.com/Porgramming-Hero-web-course/b9a
 Server side git Private repo: https://github.com/Porgramming-Hero-web-course/b9a11-server-side-gazimaksudur2/tree/main
 
 live site url: https://trip-flip.web.app/
-live server vercel url: 
+live server vercel url: https://server-seven-gamma-70.vercel.app/
 
 Website title: Trip_Flip
 
