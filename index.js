@@ -108,11 +108,36 @@ async function run() {
         res.send(result);
     })
 
+    app.post('/bookings', async(req, res)=>{
+      const doc = req.body;
+      const result = await bookingColl.insertOne(doc);
+      // console.log(doc);
+      res.send(result);
+    })
+
     app.get('/reviews', async(req, res)=>{
         const cursor = reviewsColl.find();
         // console.log(cursor);
         const result = await cursor.toArray();
         res.send(result);
+    })
+
+    app.get('/reviews/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {
+          roomId: id
+        }
+        console.log(query);
+        const cursor = reviewsColl.find(query);
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.post('/reviews', async(req, res)=>{
+      const doc = req.body;
+      // console.log(doc);
+      const result = await reviewsColl.insertOne(doc);
+      res.send(result);
     })
 
     app.get('/carousel', async(req, res)=>{
@@ -131,21 +156,21 @@ async function run() {
           id: -1
         },
         projection: {
-          room_title: 1, room_description: 1, reviews: 1, customer_ratings: 1 , homeImg: 1 
+          room_title: 1, room_description: 1, reviews: 1, customer_ratings: 1 , card_img: 1 
         }
       }
       if(queryUser?.start === undefined){
-        console.log("query user: ", queryUser);
+        // console.log("query user: ", queryUser);
         result = await roomsColl.find({},options).toArray();
       }else{
         const start = queryUser.start;
         const end = queryUser.end;
-        console.log(start, end);
+        // console.log(start, end);
         if(end === 'all'){
           const filter = {price_per_night:{$gt: parseInt(start)}};
           result = await roomsColl.find(filter,options).toArray();
         }else{
-          console.log('in range');
+          // console.log('in range');
           const filter = { price_per_night:{$gt: parseInt(start), $lt: parseInt(end)} };
           result = await roomsColl.find(filter, options).toArray();
         }
@@ -164,14 +189,15 @@ async function run() {
       // if(user.email !== queryUser.email){
       //   return res.status(403).send({message: "forbidden access!!"});
       // }
+      const options = {
+        projection: {
+          room_title: 1, room_description: 1, reviews: 1, customer_ratings: 1 , homeImg: 1, room_size: 1, price_per_night: 1, availability: 1, facilities: 1, room_images: 1, reviews: 1, special_offers: 1, features: 1
+        }
+      }
       const room_id = req.params.id;
       const query = { _id : new ObjectId(room_id) }
-      const result = await roomsColl.findOne(query);
+      const result = await roomsColl.findOne(query,options);
       res.send(result);
-    });
-
-    app.get('/rooms/:id', async(req, res)=>{
-
     });
 
     app.listen(port,()=>{
